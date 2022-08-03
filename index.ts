@@ -1,5 +1,4 @@
-let http = require('http');
-
+import { createServer } from 'http'
 /*
 `/party/find` uses {
     jobid: string,
@@ -157,7 +156,8 @@ function handleRequest(req, res, data) {
     }
 }
 
-http.createServer(function (req, res) {
+createServer(function (req, res) {
+    console.log("Received.");
     // get full request data
     let data = '';
     req.on('data', function (chunk) {
@@ -167,3 +167,4 @@ http.createServer(function (req, res) {
         handleRequest(req, res, JSON.parse(data));
     });
 }).listen(80);
+
