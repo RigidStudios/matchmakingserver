@@ -44,7 +44,7 @@ var notifications = new Map();
 function getNotification(job) {
     var notif = notifications.get(job);
     notifications.set(job, []);
-    return notif;
+    return notif || [];
 }
 function addNotificationForJob(job, newnotif) {
     var existing = notifications.get(job);
