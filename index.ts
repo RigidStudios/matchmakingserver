@@ -1,4 +1,5 @@
-var http = require('http');
+let http = require('http');
+
 /*
 `/party/find` uses {
     jobid: string,
@@ -30,76 +31,93 @@ var http = require('http');
     jobid: string
 }
 */
-var Status;
-(function (Status) {
-    Status[Status["IDLE"] = 0] = "IDLE";
-    Status[Status["MATCHMAKING"] = 1] = "MATCHMAKING";
-    Status[Status["INGAME"] = 2] = "INGAME";
-})(Status || (Status = {}));
-var parties = new Map();
-var players = new Map();
-var notifications = new Map();
+
+enum Status {
+    IDLE,
+    MATCHMAKING,
+    INGAME
+}
+
+type PartyData = { jobid: string, partyid: string, players: string[], outstanding: string[] };
+type PlayerData = { jobid: string, partyid: string, status: Status };
+
+type PartyUpdate = { partyid: string, players: string[] };
+type PartyInvite = { partyid: string, player: string };
+
+let parties = new Map<string, PartyData>();
+let players = new Map<string, PlayerData>();
+let notifications = new Map<string, (PartyUpdate | PartyInvite)[]>();
+
 function getNotification(job) {
-    var notif = notifications.get(job);
+    let notif = notifications.get(job);
     notifications.set(job, []);
     return notif;
 }
-function addNotificationForJob(job, newnotif) {
-    var existing = notifications.get(job);
+
+function addNotificationForJob(job, newnotif: PartyUpdate | PartyInvite) {
+    let existing = notifications.get(job);
     if (existing) {
         existing.push(newnotif);
-    }
-    else {
+    } else {
         notifications.set(job, [newnotif]);
     }
 }
-function createParty(player, jobid, partyid) {
-    parties.set(partyid, { jobid: jobid, partyid: partyid, players: [player], outstanding: [] });
+
+function createParty(player: string, jobid: string, partyid: string) {
+    parties.set(partyid, { jobid, partyid, players: [player], outstanding: [] });
 }
-function removePlayerFromParty(player, partyid) {
-    var party = parties.get(partyid);
+
+function removePlayerFromParty(player: string, partyid: string) {
+    let party = parties.get(partyid);
     if (party) {
-        party.players = party.players.filter(function (p) { return p !== player; });
+        party.players = party.players.filter(p => p !== player);
         if (party.players.length === 0) {
-            parties["delete"](partyid);
+            parties.delete(partyid);
         }
     }
 }
-function setPlayerParty(player, party) {
-    var playerdata = players.get(player);
+
+function setPlayerParty(player: string, party: string) {
+    let playerdata = players.get(player) as PlayerData;
     if (playerdata.partyid !== '') {
         removePlayerFromParty(player, playerdata.partyid);
     }
-    var partyobj = parties.get(party);
+    let partyobj = parties.get(party);
     if (partyobj) {
-        partyobj.outstanding = partyobj.outstanding.filter(function (p) { return p !== player; });
+        partyobj.outstanding = partyobj.outstanding.filter(p => p !== player);
     }
-    players.get(player).partyid = party;
+    (players.get(player) as PlayerData).partyid = party;
 }
-function playerJoined(player, jobid) {
+
+function playerJoined(player: string, jobid: string) {
     playerLeft(player); // TODO: refactor.
-    players.set(player, { jobid: jobid, partyid: '', status: Status.IDLE });
+    players.set(player, { jobid, partyid: '', status: Status.IDLE });
 }
-function playerLeft(player) {
+
+function playerLeft(player: string) {
     // TODO: remember what game a player was in.
-    removePlayerFromParty(player, players.get(player).partyid);
-    players["delete"](player);
+    removePlayerFromParty(player, (players.get(player) as PlayerData).partyid);
+    players.delete(player);
 }
-function invitePlayer(player, partyid) {
-    var _a;
-    var party = parties.get(partyid);
+
+function invitePlayer(player: string, partyid: string) {
+    let party = parties.get(partyid);
     if (party) {
         party.outstanding.push(player);
-        addNotificationForJob((_a = players.get(player)) === null || _a === void 0 ? void 0 : _a.jobid, { partyid: partyid, player: player });
+        addNotificationForJob(players.get(player)?.jobid, { partyid, player });
     }
 }
+
 function handleError(e, res) {
     console.log(e);
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.writeHead(400, {'Content-Type': 'text/plain'});
     res.end('Invalid JSON');
 }
-function partyEnterMatchmaking(jobid, partyid) {
+
+function partyEnterMatchmaking(jobid: string, partyid: string) {
+
 }
+
 function handleRequest(req, res, data) {
     switch (req.url) {
         case '/party/find':
@@ -124,16 +142,17 @@ function handleRequest(req, res, data) {
             res.end();
             break;
         case '/live/tick':
-            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify(getNotification(data.jobid)));
             break;
         case '/live/join':
             playerJoined(data.player, data.jobid);
     }
 }
+
 http.createServer(function (req, res) {
     // get full request data
-    var data = '';
+    let data = '';
     req.on('data', function (chunk) {
         data += chunk;
     });
