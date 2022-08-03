@@ -50,7 +50,7 @@ let notifications = new Map<string, (PartyUpdate | PartyInvite)[]>();
 function getNotification(job) {
     let notif = notifications.get(job);
     notifications.set(job, []);
-    return notif;
+    return notif || [];
 }
 
 function addNotificationForJob(job, newnotif: PartyUpdate | PartyInvite) {
