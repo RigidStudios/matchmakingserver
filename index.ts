@@ -153,6 +153,10 @@ function handleRequest(req, res, data) {
             playerJoined(data.player, data.jobid);
             res.writeHead(200, {'Content-Type': 'text/plain'});
             res.end();
+            break;
+        default:
+            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.end();
     }
 }
 
