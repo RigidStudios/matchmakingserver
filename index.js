@@ -104,23 +104,28 @@ function handleRequest(req, res, data) {
     switch (req.url) {
         case '/party/find':
             partyEnterMatchmaking(data.jobid, data.partyid);
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end();
             break;
         case '/party/create':
             console.log("Worked.");
             createParty(data.player, data.jobid, data.partyid);
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end();
             break;
         case '/party/join':
             setPlayerParty(data.player, data.partyid);
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end();
             break;
         case '/party/leave':
             setPlayerParty(data.player, '');
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end();
             break;
         case '/live/invite':
             invitePlayer(data.player, data.partyid);
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end();
             break;
         case '/live/tick':
@@ -129,6 +134,8 @@ function handleRequest(req, res, data) {
             break;
         case '/live/join':
             playerJoined(data.player, data.jobid);
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end();
     }
 }
 http.createServer(function (req, res) {
