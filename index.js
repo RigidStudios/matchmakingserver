@@ -79,7 +79,7 @@ function setPlayerParty(player, party) {
     players.get(player).partyid = party;
 }
 function playerJoined(player, jobid) {
-    playerLeft(player); // TODO: refactor.
+    // playerLeft(player); // TODO: refactor.
     players.set(player, { jobid: jobid, partyid: '', status: Status.IDLE });
 }
 function playerLeft(player) {
