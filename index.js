@@ -1,4 +1,6 @@
-var http = require('http');
+"use strict";
+exports.__esModule = true;
+var http_1 = require("http");
 /*
 `/party/find` uses {
     jobid: string,
@@ -138,13 +140,15 @@ function handleRequest(req, res, data) {
             res.end();
     }
 }
-http.createServer(function (req, res) {
+(0, http_1.createServer)(function (req, res) {
+    console.log("Received.");
     // get full request data
     var data = '';
     req.on('data', function (chunk) {
         data += chunk;
     });
     req.on('end', function () {
+        console.log(data);
         handleRequest(req, res, JSON.parse(data));
     });
-}).listen(80);
+}).listen(8080);

@@ -164,6 +164,7 @@ createServer(function (req, res) {
         data += chunk;
     });
     req.on('end', function () {
+        console.log(data);
         handleRequest(req, res, JSON.parse(data));
     });
 }).listen(8080);
