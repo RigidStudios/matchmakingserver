@@ -86,7 +86,9 @@ function setPlayerParty(player, party) {
         removePlayerFromParty(player, playerdata.partyid);
     }
     var partyobj = parties.get(party);
+    console.log("Fetched party.");
     if (partyobj) {
+        console.log("Added player to party.");
         partyobj.outstanding = partyobj.outstanding.filter(function (p) { return p !== player; });
         playerdata.partyid = party;
         addNotificationForJob(partyobj.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj === null || partyobj === void 0 ? void 0 : partyobj.outstanding, settings: partyobj.settings });
@@ -113,7 +115,6 @@ function invitePlayer(player, partyid) {
     }
 }
 function handleError(e, res) {
-    console.log(e);
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end('Invalid JSON');
 }
@@ -127,7 +128,6 @@ function handleRequest(req, res, data) {
             res.end();
             break;
         case '/party/create':
-            console.log("Worked.");
             createParty(data.player, data.jobid, data.partyid);
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end();
@@ -162,14 +162,12 @@ function handleRequest(req, res, data) {
     }
 }
 (0, http_1.createServer)(function (req, res) {
-    console.log("Received.");
     // get full request data
     var data = '';
     req.on('data', function (chunk) {
         data += chunk;
     });
     req.on('end', function () {
-        console.log(data);
         handleRequest(req, res, JSON.parse(data));
     });
 }).listen(80);

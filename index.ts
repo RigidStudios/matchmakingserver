@@ -100,7 +100,9 @@ function setPlayerParty(player: string, party: string) {
         removePlayerFromParty(player, playerdata.partyid);
     }
     let partyobj = parties.get(party);
+    console.log("Fetched party.");
     if (partyobj) {
+        console.log("Added player to party.")
         partyobj.outstanding = partyobj.outstanding.filter(p => p !== player);
         playerdata.partyid = party;
         addNotificationForJob(partyobj.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj?.outstanding, settings: partyobj.settings });
@@ -129,7 +131,6 @@ function invitePlayer(player: string, partyid: string) {
 }
 
 function handleError(e, res) {
-    console.log(e);
     res.writeHead(400, {'Content-Type': 'text/plain'});
     res.end('Invalid JSON');
 }
@@ -146,7 +147,6 @@ function handleRequest(req, res, data) {
             res.end();
             break;
         case '/party/create':
-            console.log("Worked.");
             createParty(data.player, data.jobid, data.partyid);
             res.writeHead(200, {'Content-Type': 'text/plain'});
             res.end();
@@ -182,14 +182,12 @@ function handleRequest(req, res, data) {
 }
 
 createServer(function (req, res) {
-    console.log("Received.");
     // get full request data
     let data = '';
     req.on('data', function (chunk) {
         data += chunk;
     });
     req.on('end', function () {
-        console.log(data);
         handleRequest(req, res, JSON.parse(data));
     });
 }).listen(80);
