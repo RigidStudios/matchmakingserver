@@ -38,6 +38,19 @@ var Status;
     Status[Status["MATCHMAKING"] = 1] = "MATCHMAKING";
     Status[Status["INGAME"] = 2] = "INGAME";
 })(Status || (Status = {}));
+var PacketType;
+(function (PacketType) {
+    PacketType[PacketType["INVITE"] = 0] = "INVITE";
+    PacketType[PacketType["ACCEPT_INVITE"] = 1] = "ACCEPT_INVITE";
+    PacketType[PacketType["DECLINE_INVITE"] = 2] = "DECLINE_INVITE";
+    PacketType[PacketType["PATCH_GROUP"] = 3] = "PATCH_GROUP";
+})(PacketType || (PacketType = {}));
+var Gamemode;
+(function (Gamemode) {
+    Gamemode[Gamemode["SPICE"] = 0] = "SPICE";
+    Gamemode[Gamemode["CAPTURE"] = 1] = "CAPTURE";
+    Gamemode[Gamemode["DEATHMATCH"] = 2] = "DEATHMATCH";
+})(Gamemode || (Gamemode = {}));
 var parties = new Map();
 var players = new Map();
 var notifications = new Map();
@@ -56,7 +69,7 @@ function addNotificationForJob(job, newnotif) {
     }
 }
 function createParty(player, jobid, partyid) {
-    parties.set(partyid, { jobid: jobid, partyid: partyid, players: [player], outstanding: [] });
+    parties.set(partyid, { jobid: jobid, partyid: partyid, players: [player], outstanding: [], settings: { mode: Gamemode.SPICE, open: true } });
 }
 function removePlayerFromParty(player, partyid) {
     var party = parties.get(partyid);
@@ -75,8 +88,12 @@ function setPlayerParty(player, party) {
     var partyobj = parties.get(party);
     if (partyobj) {
         partyobj.outstanding = partyobj.outstanding.filter(function (p) { return p !== player; });
+        playerdata.partyid = party;
+        addNotificationForJob(partyobj.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj === null || partyobj === void 0 ? void 0 : partyobj.outstanding, settings: partyobj.settings });
+        addNotificationForJob(playerdata.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj === null || partyobj === void 0 ? void 0 : partyobj.outstanding, settings: partyobj.settings });
     }
-    players.get(player).partyid = party;
+    else
+        return;
 }
 function playerJoined(player, jobid) {
     // playerLeft(player); // TODO: refactor.
@@ -92,7 +109,7 @@ function invitePlayer(player, partyid) {
     var party = parties.get(partyid);
     if (party) {
         party.outstanding.push(player);
-        addNotificationForJob((_a = players.get(player)) === null || _a === void 0 ? void 0 : _a.jobid, { partyid: partyid, player: player });
+        addNotificationForJob((_a = players.get(player)) === null || _a === void 0 ? void 0 : _a.jobid, { pack: PacketType.INVITE, partyid: partyid, player: player });
     }
 }
 function handleError(e, res) {
