@@ -169,6 +169,7 @@ function handleRequest(req, res, data) {
         case '/live/tick':
             res.writeHead(200, {'Content-Type': 'application/json'});
             res.end(JSON.stringify(getNotification(data.jobid)));
+            console.log("Answered tick.")
             break;
         case '/live/join':
             playerJoined(data.player, data.jobid);
