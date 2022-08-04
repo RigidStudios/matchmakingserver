@@ -90,9 +90,10 @@ function setPlayerParty(player, party) {
     if (partyobj) {
         console.log("Added player to party.");
         partyobj.outstanding = partyobj.outstanding.filter(function (p) { return p !== player; });
+        partyobj.players.push(player);
         playerdata.partyid = party;
-        addNotificationForJob(partyobj.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj === null || partyobj === void 0 ? void 0 : partyobj.outstanding, settings: partyobj.settings });
-        addNotificationForJob(playerdata.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj === null || partyobj === void 0 ? void 0 : partyobj.outstanding, settings: partyobj.settings });
+        addNotificationForJob(partyobj.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj.players, settings: partyobj.settings });
+        addNotificationForJob(playerdata.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj.players, settings: partyobj.settings });
     }
     else
         return;

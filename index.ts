@@ -104,9 +104,10 @@ function setPlayerParty(player: string, party: string) {
     if (partyobj) {
         console.log("Added player to party.")
         partyobj.outstanding = partyobj.outstanding.filter(p => p !== player);
+        partyobj.players.push(player);
         playerdata.partyid = party;
-        addNotificationForJob(partyobj.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj?.outstanding, settings: partyobj.settings });
-        addNotificationForJob(playerdata.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj?.outstanding, settings: partyobj.settings });
+        addNotificationForJob(partyobj.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj.players, settings: partyobj.settings });
+        addNotificationForJob(playerdata.jobid, { pack: PacketType.PATCH_GROUP, partyid: party, players: partyobj.players, settings: partyobj.settings });
     } else return;
 
 }
